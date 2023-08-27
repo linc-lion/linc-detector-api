@@ -8,15 +8,11 @@ To install, clone this repo and cd into the root of the project.
 
 1) Create a virtual environment:
 
-```python3 -m venv venv```
+```conda create --name linc-detector-api python=3.8```
 
 2) Activate the virtual environment. If you're using a Unix-based OS, run:
 
-```source venv/bin/activate```
-
-If you're using Windows, run:
-
-```venv\Scripts\activate```
+```conda activate linc-detector-api```
 
 3) Install the needed python dependencies:
 
@@ -39,3 +35,12 @@ a file named `app.py`.
 4. Execute ```flask run``` at the root of the project
 
 You should be able to view the app at 127.0.0.1:5000
+
+### Running Tests
+
+To run the integration tests for the API, follow these steps:
+
+1. Ensure you have dependencies installed before running tests
+2. Run the tests using the command `python test_app.py`.
+
+The tests cover various scenarios, including successful image annotation and cases where exceptions are thrown due to missing or invalid data.

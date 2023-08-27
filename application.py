@@ -1,10 +1,16 @@
 import glob
 import os
+import json
+from typing import Dict, Any
 
-from flask import Flask, flash, request, redirect, url_for, render_template
+from flask import Flask, request
 from werkzeug.utils import secure_filename
 
+import torchvision
+
 from utils.predictor import predict
+
+convert_to_pil = torchvision.transforms.ToPILImage()
 
 UPLOAD_FOLDER = 'static/uploads/'
 
@@ -13,77 +19,52 @@ application.secret_key = "secret key"
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 application.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@application.route('/v1/annotate', methods=['POST'])
+def annotate_image() -> Dict[str, Any]:
+    try:
+        # Clear old uploaded files
+        directory = os.getcwd()
+        files = glob.glob(f'{directory}/static/uploads/*')
+        for f in files:
+            os.remove(f)
 
-@application.route('/')
-def upload_form():
-    return render_template('login.html')
+        if 'file' not in request.files:
+            return json.dumps({'error': 'No file sent'}), 500
 
+        file = request.files['file']
 
-@application.route('/login', methods=['POST'])  # define login page path
-def login():  # define login page fucntion
-    # if the request is POST the we check if the user exist
-    # and with te right password
-    username = request.form.get('username')
-    password = request.form.get('password')
+        if file.filename == '':
+            return json.dumps({'error': 'No image selected for uploading'}), 500
 
-    # check if the user actually exists
-    # take the user-supplied password, hash it, and compare it
-    # to the hashed password in the database
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            input_image_path = os.path.join(application.config['UPLOAD_FOLDER'], filename)
+            output_image_path = os.path.join(application.config['UPLOAD_FOLDER'], 'annotated_' + filename)
 
-    credentials = {'habibam': '3mJbFAdm',
-                   'nadiadz': '9hTg5N4U',
-                   'shihgianl': 'fwScBkBJ'}
+            file.save(input_image_path)
 
-    if username in credentials and credentials[username] == password:
-        return render_template('upload.html')
-    # if the above check passes, then we know the user has the
-    # right credentials
-    else:
-        flash('Incorrect login credentials')
-        return render_template('login.html')
+            predicted_picture_output = predict(input_image_path)
+            predicted_picture = predicted_picture_output['image_with_boxes']
+            bounding_box_coords = predicted_picture_output['box_coordinates']
 
+            pil_image = convert_to_pil(predicted_picture)
 
-@application.route('/', methods=['POST'])
-def upload_image():
-    # delete any files in the static/uploads directory so app memory doesn't build up
-    directory = os.getcwd()
-    files = glob.glob(f'{directory}/static/uploads/*')
-    for f in files:
-        os.remove(f)
+            pil_image.save(output_image_path)
 
-    if 'file' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    file = request.files['file']
+            return json.dumps({'input_image': input_image_path,
+                               'annotated_image': output_image_path,
+                               'bounding_box_coords': bounding_box_coords})
 
-    if file.filename == '':
-        flash('No image selected for uploading')
-        return redirect(request.url)
+        return json.dumps({'error': 'Allowed image types are -> png, jpg, jpeg'})
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
-        flash('Image successfully uploaded and displayed below')
-        input_image_path = os.path.join(application.config['UPLOAD_FOLDER'], filename)
-
-        predicted_picture = predict(input_image_path)
-        predicted_picture.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
-
-        return render_template('upload.html', filename=filename)
-    else:
-        flash('Allowed image types are -> png, jpg, jpeg')
-        return redirect(request.url)
-
-
-@application.route('/display/<filename>')
-def display_image(filename):
-    return redirect(url_for('static', filename='uploads/' + filename), code=301)
+    except Exception as e:
+        return json.dumps({'error': f'An error occurred: {str(e)}'}), 500
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import boto3
 import torchvision
 
-from linc.detector.helper.utils import draw_boxes
+from linc.detector.helper.utils import draw_boxes, fetch_boxes_coordinates
 import time
 from linc.detector.models import detection
 import PIL.Image
@@ -10,7 +10,6 @@ import torch
 draw_confidence_threshold = 0.5
 
 to_tensor = torchvision.transforms.ToTensor()
-convert_to_pil = torchvision.transforms.ToPILImage()
 
 model_filename = 'model.pth'
 device = 'cpu'
@@ -85,11 +84,10 @@ def predict(image_path):
             image.cpu(), top_boxes, top_labels.cpu(), label_names, scores, vert_size=500
         )
 
-        pil_picture = convert_to_pil(image_with_boxes)
         width, height = loaded_image.size
         print(f'Predicted image_width: {width}, image_height: {height}')
-
-        return pil_picture
+        box_coordinates = fetch_boxes_coordinates(image, top_boxes, top_labels, label_names)
+        return {"image_with_boxes": image_with_boxes, "box_coordinates": box_coordinates}
     else:
         print("The model didn't find any object it feels confident about enough to show")
         return False
