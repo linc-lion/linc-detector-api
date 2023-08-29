@@ -1,7 +1,7 @@
 import unittest
 import os
 import json
-from app import app
+from application import app
 from werkzeug.datastructures import FileStorage
 from unittest.mock import patch
 

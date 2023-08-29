@@ -1,5 +1,6 @@
 import boto3
 import torchvision
+import os
 
 from linc.detector.helper.utils import draw_boxes, fetch_boxes_coordinates
 import time
@@ -30,7 +31,8 @@ def download_model():
 
 
 def load_check_point():
-    download_model()
+    if not os.path.exists(model_filename):
+        download_model()
     print('Loading checkpoint from hardrive... ', end='', flush=True)
     model_checkpoint = torch.load(model_filename, map_location=device)
 
