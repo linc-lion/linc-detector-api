@@ -60,15 +60,14 @@ def annotate_image() -> Union[Tuple[str, int], str]:
             file.save(input_image_path)
 
             predicted_picture_output = predict(input_image_path, vert_size=vert_size)
-            predicted_picture = predicted_picture_output['image_with_boxes']
+            # predicted_picture = predicted_picture_output['image_with_boxes']
             bounding_box_coords = predicted_picture_output['box_coordinates']
 
-            pil_image = convert_to_pil(predicted_picture)
+            # pil_image = convert_to_pil(predicted_picture)
 
-            pil_image.save(output_image_path)
+            # pil_image.save(output_image_path)
 
             return json.dumps({'input_image': input_image_path,
-                               'annotated_image': output_image_path,
                                'bounding_box_coords': bounding_box_coords})
 
         return json.dumps({'error': 'Allowed image types are -> png, jpg, jpeg'})
