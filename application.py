@@ -31,10 +31,13 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 @app.route('/v1/annotate', methods=['POST'])
 @auth.login_required  # Require authentication to access this endpoint
 def annotate_image() -> Union[Tuple[str, int], str]:
     try:
+        vert_size = int(request.args.get('vert_size', 500))  # Default value is 500
+
         # Clear old uploaded files
         directory = os.getcwd()
         files = glob.glob(f'{directory}/static/uploads/*')
@@ -56,7 +59,7 @@ def annotate_image() -> Union[Tuple[str, int], str]:
 
             file.save(input_image_path)
 
-            predicted_picture_output = predict(input_image_path)
+            predicted_picture_output = predict(input_image_path, vert_size=vert_size)
             predicted_picture = predicted_picture_output['image_with_boxes']
             bounding_box_coords = predicted_picture_output['box_coordinates']
 

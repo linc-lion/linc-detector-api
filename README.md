@@ -38,10 +38,12 @@ You should be able to view the REST endpoint at 127.0.0.1:5000/v1/annotate
 
 POSTMAN CURL
 ```
-curl --location --request POST 'http://127.0.0.1:5000/v1/annotate' \
+curl --location --request POST 'http://127.0.0.1:5000/v1/annotate?vert_size=250' \
 --header 'Authorization: Bearer 1e620008-745c-4e84-be74-81042ab71b1e' \
 --form 'file=@"{FILE_PATH_TO_IMAGE}"'
 ```
+
+The vert_size is configured as a query parameter, the default value is 500.
 
 note: file path needs the picture name and file extension ie: `/Users/habibamohamed/Downloads/habiba/evaluation/Amboga/PJB_2359.JPG`
 

@@ -58,7 +58,7 @@ model = build_model(checkpoint)
 
 
 @torch.no_grad()
-def predict(image_path):
+def predict(image_path, vert_size):
     print(f"Running inference on {device} device")
 
     print('Loading image... ', end='', flush=True)
@@ -83,7 +83,7 @@ def predict(image_path):
     top_labels = outputs[0]['labels'][top_scores_filter]
     if len(top_scores) > 0:
         image_with_boxes = draw_boxes(
-            image.cpu(), top_boxes, top_labels.cpu(), label_names, scores, vert_size=500
+            image.cpu(), top_boxes, top_labels.cpu(), label_names, scores, vert_size=vert_size
         )
 
         width, height = loaded_image.size
