@@ -1,90 +1,87 @@
 import glob
 import os
+import json
+import uuid
+from typing import Union, Tuple
 
-from flask import Flask, flash, request, redirect, url_for, render_template
+from flask import Flask, request
 from werkzeug.utils import secure_filename
+from flask_httpauth import HTTPTokenAuth
+
+import torchvision
 
 from utils.predictor import predict
 
+convert_to_pil = torchvision.transforms.ToPILImage()
+
 UPLOAD_FOLDER = 'static/uploads/'
 
-application = Flask(__name__)
-application.secret_key = "secret key"
-application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-application.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app = Flask(__name__)
+auth = HTTPTokenAuth(scheme='Bearer')
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+API_KEY = '1e620008-745c-4e84-be74-81042ab71b1e'
+
+app.secret_key = "secret key"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@application.route('/')
-def upload_form():
-    return render_template('login.html')
+@app.route('/v1/annotate', methods=['POST'])
+@auth.login_required  # Require authentication to access this endpoint
+def annotate_image() -> Union[Tuple[str, int], str]:
+    try:
+        vert_size = int(request.args.get('vert_size', 500))  # Default value is 500
 
+        # Clear old uploaded files
+        directory = os.getcwd()
+        files = glob.glob(f'{directory}/static/uploads/*')
+        for f in files:
+            os.remove(f)
 
-@application.route('/login', methods=['POST'])  # define login page path
-def login():  # define login page fucntion
-    # if the request is POST the we check if the user exist
-    # and with te right password
-    username = request.form.get('username')
-    password = request.form.get('password')
+        if 'file' not in request.files:
+            return json.dumps({'error': 'No file sent'}), 500
 
-    # check if the user actually exists
-    # take the user-supplied password, hash it, and compare it
-    # to the hashed password in the database
+        file = request.files['file']
 
-    credentials = {'habibam': '3mJbFAdm',
-                   'nadiadz': '9hTg5N4U',
-                   'shihgianl': 'fwScBkBJ'}
+        if file.filename == '':
+            return json.dumps({'error': 'No image selected for uploading'}), 500
 
-    if username in credentials and credentials[username] == password:
-        return render_template('upload.html')
-    # if the above check passes, then we know the user has the
-    # right credentials
-    else:
-        flash('Incorrect login credentials')
-        return render_template('login.html')
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            input_image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            output_image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'annotated_' + filename)
 
+            file.save(input_image_path)
 
-@application.route('/', methods=['POST'])
-def upload_image():
-    # delete any files in the static/uploads directory so app memory doesn't build up
-    directory = os.getcwd()
-    files = glob.glob(f'{directory}/static/uploads/*')
-    for f in files:
-        os.remove(f)
+            predicted_picture_output = predict(input_image_path, vert_size=vert_size)
+            # predicted_picture = predicted_picture_output['image_with_boxes']
+            bounding_box_coords = predicted_picture_output['box_coordinates']
 
-    if 'file' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    file = request.files['file']
+            # pil_image = convert_to_pil(predicted_picture)
 
-    if file.filename == '':
-        flash('No image selected for uploading')
-        return redirect(request.url)
+            # pil_image.save(output_image_path)
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
-        flash('Image successfully uploaded and displayed below')
-        input_image_path = os.path.join(application.config['UPLOAD_FOLDER'], filename)
+            return json.dumps({'input_image': input_image_path,
+                               'bounding_box_coords': bounding_box_coords})
 
-        predicted_picture = predict(input_image_path)
-        predicted_picture.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
+        return json.dumps({'error': 'Allowed image types are -> png, jpg, jpeg'})
 
-        return render_template('upload.html', filename=filename)
-    else:
-        flash('Allowed image types are -> png, jpg, jpeg')
-        return redirect(request.url)
+    except Exception as e:
+        return json.dumps({'error': f'An error occurred: {str(e)}'}), 500
 
-
-@application.route('/display/<filename>')
-def display_image(filename):
-    return redirect(url_for('static', filename='uploads/' + filename), code=301)
+@auth.verify_token
+def verify_token(token):
+    print("Received token:", token)
+    habiba_api_key = str(uuid.uuid4())
+    print(habiba_api_key)
+    return token == API_KEY
 
 
 if __name__ == "__main__":
-    application.run()
+    app.run()
