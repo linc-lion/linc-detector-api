@@ -16,14 +16,14 @@ convert_to_pil = torchvision.transforms.ToPILImage()
 
 UPLOAD_FOLDER = 'static/uploads/'
 
-app = Flask(__name__)
+application = Flask(__name__)
 auth = HTTPTokenAuth(scheme='Bearer')
 
 API_KEY = '1e620008-745c-4e84-be74-81042ab71b1e'
 
-app.secret_key = "secret key"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+application.secret_key = "secret key"
+application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+application.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -32,7 +32,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/v1/annotate', methods=['POST'])
+@application.route('/v1/annotate', methods=['POST'])
 @auth.login_required  # Require authentication to access this endpoint
 def annotate_image() -> Union[Tuple[str, int], str]:
     try:
@@ -54,8 +54,8 @@ def annotate_image() -> Union[Tuple[str, int], str]:
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            input_image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            output_image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'annotated_' + filename)
+            input_image_path = os.path.join(application.config['UPLOAD_FOLDER'], filename)
+            output_image_path = os.path.join(application.config['UPLOAD_FOLDER'], 'annotated_' + filename)
 
             file.save(input_image_path)
 
@@ -78,10 +78,8 @@ def annotate_image() -> Union[Tuple[str, int], str]:
 @auth.verify_token
 def verify_token(token):
     print("Received token:", token)
-    habiba_api_key = str(uuid.uuid4())
-    print(habiba_api_key)
     return token == API_KEY
 
 
 if __name__ == "__main__":
-    app.run()
+    application.run()

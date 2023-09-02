@@ -1,7 +1,7 @@
 import unittest
 import os
 import json
-from application import app
+from application import application
 from werkzeug.datastructures import FileStorage
 from unittest.mock import patch
 
@@ -9,7 +9,7 @@ from unittest.mock import patch
 class TestApp(unittest.TestCase):
 
     def setUp(self):
-        self.app = app.test_client()
+        self.app = application.test_client()
         self.app.testing = True
 
     def test_annotate_image(self):
