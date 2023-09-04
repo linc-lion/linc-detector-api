@@ -28,11 +28,8 @@ To install, clone this repo and cd into the root of the project.
     AWS_ACCESS_KEY_ID = "KEY_ID"
     AWS_SECRET_ACCESS_KEY = "ACCESS_KEY"
     ```
-2. Change `app.py` file name to `application.py` Elasticbeanstalk requires the entry point 
-flask application file name to be `application.py` but running locally flask looks for
-a file named `app.py`.
 
-3. Execute ```flask run``` at the root of the project
+2. Execute ```flask --app application run``` at the root of the project
 
 You should be able to view the REST endpoint at 127.0.0.1:5000/v1/annotate
 
