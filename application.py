@@ -65,7 +65,7 @@ def annotate_image() -> Union[Tuple[Response, int], Response]:
             # pil_image.save(output_image_path)
 
             return jsonify({'input_image': input_image_path,
-                               'bounding_box_coords': bounding_box_coords})
+                            'bounding_box_coords': bounding_box_coords})
 
         return jsonify({'error': 'Allowed image types are -> png, jpg, jpeg'})
 
