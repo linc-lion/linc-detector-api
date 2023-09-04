@@ -1,14 +1,11 @@
 import glob
 import os
-import json
-import uuid
 from typing import Union, Tuple
 
-from flask import Flask, request
-from werkzeug.utils import secure_filename
-from flask_httpauth import HTTPTokenAuth
-
 import torchvision
+from flask import Flask, request, jsonify, Response
+from flask_httpauth import HTTPTokenAuth
+from werkzeug.utils import secure_filename
 
 from utils.predictor import predict
 
@@ -34,7 +31,7 @@ def allowed_file(filename):
 
 @application.route('/v1/annotate', methods=['POST'])
 @auth.login_required  # Require authentication to access this endpoint
-def annotate_image() -> Union[Tuple[str, int], str]:
+def annotate_image() -> Union[Tuple[Response, int], Response]:
     try:
         vert_size = int(request.args.get('vert_size', 500))  # Default value is 500
 
@@ -45,12 +42,12 @@ def annotate_image() -> Union[Tuple[str, int], str]:
             os.remove(f)
 
         if 'file' not in request.files:
-            return json.dumps({'error': 'No file sent'}), 500
+            return jsonify({'error': 'No file sent'}), 500
 
         file = request.files['file']
 
         if file.filename == '':
-            return json.dumps({'error': 'No image selected for uploading'}), 500
+            return jsonify({'error': 'No image selected for uploading'}), 500
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -67,13 +64,14 @@ def annotate_image() -> Union[Tuple[str, int], str]:
 
             # pil_image.save(output_image_path)
 
-            return json.dumps({'input_image': input_image_path,
-                               'bounding_box_coords': bounding_box_coords})
+            return jsonify({'input_image': input_image_path,
+                            'bounding_box_coords': bounding_box_coords})
 
-        return json.dumps({'error': 'Allowed image types are -> png, jpg, jpeg'})
+        return jsonify({'error': 'Allowed image types are -> png, jpg, jpeg'})
 
     except Exception as e:
-        return json.dumps({'error': f'An error occurred: {str(e)}'}), 500
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
 
 @auth.verify_token
 def verify_token(token):
