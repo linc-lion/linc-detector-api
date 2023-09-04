@@ -1,9 +1,7 @@
-import unittest
-import os
 import json
+import unittest
+
 from application import app
-from werkzeug.datastructures import FileStorage
-from unittest.mock import patch
 
 
 class TestApp(unittest.TestCase):
