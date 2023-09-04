@@ -1,5 +1,4 @@
 import glob
-import json
 import os
 from typing import Union, Tuple
 
@@ -72,6 +71,7 @@ def annotate_image() -> Union[Tuple[Response, int], Response]:
 
     except Exception as e:
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
 
 @auth.verify_token
 def verify_token(token):
