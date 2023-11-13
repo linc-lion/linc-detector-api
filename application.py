@@ -22,24 +22,18 @@ application.secret_key = "secret key"
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 application.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @application.route('/v1/annotate', methods=['POST'])
-@auth.login_required  # Require authentication to access this endpoint
+@auth.login_required
 def annotate_image() -> Union[Tuple[Response, int], Response]:
     try:
-        vert_size = int(request.args.get('vert_size', 500))  # Default value is 500
+        vert_size = int(request.args.get('vert_size', 500))
 
         # Clear old uploaded files
-        directory = os.getcwd()
-        files = glob.glob(f'{directory}/static/uploads/*')
-        for f in files:
-            os.remove(f)
+        clear_old_files()
 
         if 'file' not in request.files:
             return jsonify({'error': 'No file sent'}), 500
@@ -49,28 +43,36 @@ def annotate_image() -> Union[Tuple[Response, int], Response]:
         if file.filename == '':
             return jsonify({'error': 'No image selected for uploading'}), 500
 
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            input_image_path = os.path.join(application.config['UPLOAD_FOLDER'], filename)
-            output_image_path = os.path.join(application.config['UPLOAD_FOLDER'], 'annotated_' + filename)
+        input_image_path, bounding_box_coords = process_uploaded_file(file, vert_size)
 
-            file.save(input_image_path)
-
-            predicted_picture_output = predict(input_image_path, vert_size=vert_size)
-            # predicted_picture = predicted_picture_output['image_with_boxes']
-            bounding_box_coords = predicted_picture_output['box_coordinates']
-
-            # pil_image = convert_to_pil(predicted_picture)
-
-            # pil_image.save(output_image_path)
-
-            return jsonify({'input_image': input_image_path,
-                            'bounding_box_coords': bounding_box_coords})
-
-        return jsonify({'error': 'Allowed image types are -> png, jpg, jpeg'})
+        return jsonify({'input_image': input_image_path,
+                        'bounding_box_coords': bounding_box_coords})
 
     except Exception as e:
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+
+def clear_old_files():
+    directory = os.getcwd()
+    files = glob.glob(f'{directory}/static/uploads/*')
+    for f in files:
+        os.remove(f)
+
+
+def process_uploaded_file(file, vert_size):
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'Allowed image types are -> png, jpg, jpeg'}), 500
+
+    filename = secure_filename(file.filename)
+    input_image_path = os.path.join(application.config['UPLOAD_FOLDER'], filename)
+    output_image_path = os.path.join(application.config['UPLOAD_FOLDER'], 'annotated_' + filename)
+
+    file.save(input_image_path)
+
+    predicted_picture_output = predict(input_image_path, vert_size=vert_size)
+    bounding_box_coords = predicted_picture_output['box_coordinates']
+
+    return input_image_path, bounding_box_coords
 
 
 @auth.verify_token

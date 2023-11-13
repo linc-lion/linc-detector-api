@@ -2,4 +2,4 @@ service: "linc_detector:svc"
 include:
   - "linc_detector.py"
 python:
-  requirements_txt: "./requirements.txt"
+  requirements_txt: "../requirements.txt"
