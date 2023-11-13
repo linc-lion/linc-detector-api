@@ -33,27 +33,27 @@ print(svc)
 
 
 @svc.api(input=Image(), output=JSON(), route='/v1/annotate')
-def analysis(image: PILImage, ctx: bentoml.Context) -> Dict[str, Any]:
+def detect(image: PILImage, ctx: bentoml.Context) -> Dict[str, Any]:
     headers = ctx.request.headers
 
     # Check if 'content-type' key is present in headers
     content_type = headers.get('content-type')
 
     if content_type is None:
-        ctx.response.status_code = 500
+        ctx.response.status_code = 405
         return {'error': 'Content-Type header is missing'}
-    print(image)
-    print("image***")
-    print(type(image.format))
-    print(ctx.request.headers)
-    print("ctx.request.headers.keys()")
+
     if not image:
         return {'error': 'No file sent'}
 
     clear_old_files()
     query_params = ctx.request.query_params
-    vert_size = int(
-        ctx.request.query_params.vert_size) if ctx.request.query_params and 'vert_size' in ctx.request.query_params else 500
+    if 'vert_size' in ctx.request.query_params:
+        vert_size = int(ctx.request.query_params.get('vert_size'))
+    else:
+        vert_size = 500
+    print(vert_size)
+    print("vert_size")
     print(allowed_file(image.format))
     print("allowed_file(image.format)")
     if not allowed_file(image.format):
