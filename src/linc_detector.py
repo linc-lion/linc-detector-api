@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 import bentoml
-from bentoml.io import JSON
+from bentoml.io import JSON, Image
 from bentoml.io import NumpyNdarray
 from numpy.typing import NDArray
 
@@ -19,7 +19,7 @@ class LincDetectionRunnable(bentoml.Runnable):
     @bentoml.Runnable.method(batchable=False)
     def is_spam(self, input_data: NDArray[Any]) -> NDArray[Any]:
 
-        return self.classifier(input_data)
+        return self.classifier[(input_data)]
 
 
 linc_detector_runner = bentoml.Runner(LincDetectionRunnable, models=[bento_model])
@@ -27,7 +27,7 @@ svc = bentoml.Service("linc_detector", runners=[linc_detector_runner])
 print(svc)
 
 
-@svc.api(input=NumpyNdarray(), output=JSON(), route='/v1/annotate')
+@svc.api(input=Image(), output=JSON(), route='/v1/annotate')
 def analysis(input_text: NDArray[Any]) -> Dict[str, Any]:
     return {"res": linc_detector_runner.is_spam.run(input_text)}
 
