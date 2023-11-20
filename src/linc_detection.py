@@ -34,7 +34,7 @@ class LincDetectionRunnable(bentoml.Runnable):
     @bentoml.Runnable.method(batchable=False)
     def has_lion(self, input_data: NDArray[Any]) -> NDArray[Any]:
 
-        return self.detector[(input_data)]
+        return self.detector[input_data]
 
 
 linc_detector_runner = bentoml.Runner(LincDetectionRunnable, models=[bento_model])
@@ -42,7 +42,7 @@ svc = bentoml.Service("linc_detector", runners=[linc_detector_runner])
 print(svc)
 
 
-@svc.api(input=Image(), output=img_json_output_spec, route='/v1/annotate')
+@svc.api(input=Image(), output=JSON(), route='/v1/annotate')
 def detect(image: PILImage, ctx: bentoml.Context) -> Union[Dict[str, str], Dict[str, str], Dict[str, str], str]:
     try:
         clear_old_files()
@@ -60,8 +60,8 @@ def detect(image: PILImage, ctx: bentoml.Context) -> Union[Dict[str, str], Dict[
             return {'error': 'No file sent'}
 
         query_params = ctx.request.query_params
-        if 'vert_size' in ctx.request.query_params:
-            vert_size = int(ctx.request.query_params.get('vert_size'))
+        if 'vert_size' in query_params:
+            vert_size = int(query_params.get('vert_size'))
         else:
             vert_size = 500
         if not allowed_file(image.format):
@@ -70,9 +70,9 @@ def detect(image: PILImage, ctx: bentoml.Context) -> Union[Dict[str, str], Dict[
             return allowed_types_error
         output = process_uploaded_file(image, vert_size)
 
-        image_with_boxes, bounding_box_coords = output
+        bounding_box_coords = output
 
-        return {'input_image': image, 'bounding_box_coords': bounding_box_coords}
+        return {'bounding_box_coords': bounding_box_coords}
 
     except Exception:
         ctx.response.status_code = 500
@@ -91,8 +91,7 @@ def process_uploaded_file(file, vert_size):
 
     predicted_picture_output = predict("input_image_path", vert_size=vert_size)
     bounding_box_coords = predicted_picture_output['box_coordinates']
-    image_with_boxes = predicted_picture_output["image_with_boxes"]
-    return image_with_boxes, bounding_box_coords
+    return bounding_box_coords
 
 
 def allowed_file(filename):

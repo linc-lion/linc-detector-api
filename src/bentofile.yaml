@@ -1,5 +1,5 @@
-service: "linc_detector:svc"
+service: "linc_detection:svc"
 include:
-  - "linc_detector.py"
+  - "linc_detection.py"
 python:
   requirements_txt: "../requirements.txt"
