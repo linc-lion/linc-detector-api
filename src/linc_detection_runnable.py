@@ -1,15 +1,14 @@
-import loggerFactory
-import bentoml
-from PIL.Image import Image as PILImage
-import torchvision
-from linc.detector.helper.utils import draw_boxes, fetch_boxes_coordinates
-import time
-import PIL.Image
-import boto3
 import os
-
+import time
+import PIL
+import boto3
+import bentoml
+from linc.detector.helper.utils import draw_boxes, fetch_boxes_coordinates
 from linc.detector.models import detection
+import loggerFactory
 import torch
+import torchvision
+
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -21,53 +20,39 @@ to_tensor = torchvision.transforms.ToTensor()
 model_filename = 'model.pth'
 device = 'cpu'
 
-model_filename = 'model.pth'
-device = 'cpu'
-
 
 class LincDetectionRunnable(bentoml.Runnable):
     SUPPORTED_RESOURCES = ("cpu",)
     SUPPORTS_CPU_MULTI_THREADING = True
 
     def __init__(self):
-        # No need to load the model here, as the model is loaded in predictor.py
+        self.checkpoint = self.load_checkpoint()
 
-        def download_model():
-            session = boto3.Session()
+    def load_checkpoint(self):
+        if not os.path.exists(model_filename):
+            self.download_model()
+        print('Loading checkpoint from hard drive... ', end='', flush=True)
+        model_checkpoint = torch.load(model_filename, map_location=device)
+        return model_checkpoint
 
-            s3 = session.resource('s3')
+    def download_model(self):
+        session = boto3.Session()
+        s3 = session.resource('s3')
+        BUCKET_NAME = 'linc-model-artifact'
+        my_bucket = s3.Bucket(BUCKET_NAME)
+        KEY = 'linc-detector/20221002/model.pth'
+        my_bucket.download_file(KEY, 'model.pth')
 
-            BUCKET_NAME = 'linc-model-artifact'
+    def build_model(self):
+        print('Building model and loading checkpoint into it... ', end='', flush=True)
+        loaded_model = detection.fasterrcnn_resnet50_fpn(
+            num_classes=len(self.checkpoint['label_names']) + 1, pretrained_backbone=False
+        )
 
-            my_bucket = s3.Bucket(BUCKET_NAME)
-
-            KEY = 'linc-detector/20221002/model.pth'
-
-            my_bucket.download_file(KEY, 'model.pth')
-
-        def load_check_point():
-            if not os.path.exists(model_filename):
-                download_model()
-            print('Loading checkpoint from hardrive... ', end='', flush=True)
-            model_checkpoint = torch.load(model_filename, map_location=device)
-
-            return model_checkpoint
-
-        def build_model(model_checkpoint):
-            print('Building model and loading checkpoint into it... ', end='', flush=True)
-            loaded_model = detection.fasterrcnn_resnet50_fpn(
-                num_classes=len(model_checkpoint['label_names']) + 1, pretrained_backbone=False
-            )
-
-            loaded_model.to(device)
-
-            loaded_model.load_state_dict(self.checkpoint['model'])
-            loaded_model.eval()
-
-            return loaded_model
-
-        self.checkpoint = load_check_point()
-        self.model = build_model(self.checkpoint)
+        loaded_model.to(device)
+        loaded_model.load_state_dict(self.checkpoint['model'])
+        loaded_model.eval()
+        return loaded_model
 
     @bentoml.Runnable.method(batchable=False)
     def predict(self, image_path, vert_size):
@@ -84,7 +69,7 @@ class LincDetectionRunnable(bentoml.Runnable):
 
         print('Running image through model... ', end='', flush=True)
         tic = time.time()
-        outputs = self.model([image])
+        outputs = self.build_model()([image])
         toc = time.time()
         print(f'Done in {toc - tic:.2f} seconds!')
 
@@ -93,6 +78,7 @@ class LincDetectionRunnable(bentoml.Runnable):
         top_scores = scores[top_scores_filter]
         top_boxes = outputs[0]['boxes'][top_scores_filter]
         top_labels = outputs[0]['labels'][top_scores_filter]
+
         if len(top_scores) > 0:
             image_with_boxes = draw_boxes(
                 image.cpu(), top_boxes, top_labels.cpu(), label_names, scores, vert_size=vert_size
@@ -103,5 +89,5 @@ class LincDetectionRunnable(bentoml.Runnable):
             box_coordinates = fetch_boxes_coordinates(image, top_boxes, top_labels, label_names)
             return {"image_with_boxes": image_with_boxes, "box_coordinates": box_coordinates}
         else:
-            print("The model didn't find any object it feels confident about enough to show")
+            print("The model didn't find any object it feels confident enough to show")
             return False

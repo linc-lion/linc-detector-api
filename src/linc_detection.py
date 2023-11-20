@@ -1,17 +1,15 @@
 from typing import Dict, Union
-import loggerFactory
-import glob
 import os
+import glob
+from PIL import Image as PILImage
 import bentoml
 from bentoml.io import JSON, Image
-from PIL.Image import Image as PILImage
 from linc_detection_runnable import LincDetectionRunnable
+import loggerFactory
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 logger = loggerFactory.StreamOnlyLogger(rand_name=True)
-
-
 linc_detector_runner = bentoml.Runner(LincDetectionRunnable)
 svc = bentoml.Service("linc_detection", runners=[linc_detector_runner])
 
@@ -21,11 +19,7 @@ def detect(image: PILImage, ctx: bentoml.Context) -> Union[Dict[str, str], Dict[
     try:
         clear_old_files()
 
-        headers = ctx.request.headers
-
-        # Check if 'content-type' key is present in headers
-        content_type = headers.get('content-type')
-
+        content_type = ctx.request.headers.get('content-type')
         if content_type is None:
             ctx.response.status_code = 405
             return {'error': 'Content-Type header is missing'}
@@ -33,11 +27,7 @@ def detect(image: PILImage, ctx: bentoml.Context) -> Union[Dict[str, str], Dict[
         if not image:
             return {'error': 'No file sent'}
 
-        query_params = ctx.request.query_params
-        if 'vert_size' in query_params:
-            vert_size = int(query_params.get('vert_size'))
-        else:
-            vert_size = 500
+        vert_size = int(ctx.request.query_params.get('vert_size', 500))
         bounding_box_coords = process_uploaded_file(image, vert_size, ctx)
 
         return {'bounding_box_coords': bounding_box_coords}
@@ -71,6 +61,4 @@ def process_uploaded_file(file, vert_size, ctx):
 
 
 def allowed_file(filename):
-    print(filename)
-    print("filename in allowed files")
     return filename.lower() in ALLOWED_EXTENSIONS
