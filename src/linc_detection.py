@@ -6,6 +6,7 @@ import bentoml
 from bentoml.io import JSON, Image
 from linc_detection_runnable import LincDetectionRunnable
 import loggerFactory
+from domain.linc_detection_response import LincDetectionResponse, BoundingBoxCoords
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -15,26 +16,26 @@ svc = bentoml.Service("linc_detection", runners=[linc_detector_runner])
 
 
 @svc.api(input=Image(), output=JSON(), route='/v1/annotate')
-def detect(image: PILImage, ctx: bentoml.Context) -> Union[Dict[str, str], Dict[str, str], Dict[str, str], str]:
-    try:
-        clear_old_files()
+def detect_v1(image: PILImage, ctx: bentoml.Context) -> LincDetectionResponse:
+    # try:
+    clear_old_files()
 
-        content_type = ctx.request.headers.get('content-type')
-        if content_type is None:
-            ctx.response.status_code = 405
-            return {'error': 'Content-Type header is missing'}
+    content_type = ctx.request.headers.get('content-type')
+    if content_type is None:
+        ctx.response.status_code = 405
+        return {'error': 'Content-Type header is missing'}
 
-        if not image:
-            return {'error': 'No file sent'}
+    if not image:
+        return {'error': 'No file sent'}
 
-        vert_size = int(ctx.request.query_params.get('vert_size', 500))
-        bounding_box_coords = process_uploaded_file(image, vert_size, ctx)
+    vert_size = int(ctx.request.query_params.get('vert_size', 500))
+    bounding_box_coords = process_uploaded_file(image, vert_size, ctx)
+    bounding_box_coords_instance = BoundingBoxCoords(**{'bounding_boxes': bounding_box_coords})
+    return LincDetectionResponse(bounding_box_coords=bounding_box_coords_instance)
 
-        return {'bounding_box_coords': bounding_box_coords}
-
-    except Exception:
-        ctx.response.status_code = 500
-        logger.error("Exception in predict method!")
+    # except Exception:
+    #     ctx.response.status_code = 500
+    #     logger.error("Exception in predict method!")
 
 
 def clear_old_files():
@@ -53,7 +54,7 @@ def process_uploaded_file(file, vert_size, ctx):
     file.save("input_image_path", 'png')
 
     # Call predict method to get predictions
-    prediction_result = linc_detector_runner.predict.run("input_image_path", vert_size)
+    prediction_result = linc_detector_runner.inference.run("input_image_path", vert_size)
 
     # Assuming prediction_result is a dictionary containing the bounding box coordinates
     bounding_box_coords = prediction_result.get("box_coordinates", None)
