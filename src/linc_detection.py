@@ -6,7 +6,7 @@ import bentoml
 from bentoml.io import JSON, Image
 from linc_detection_runnable import LincDetectionRunnable
 import loggerFactory
-from domain.linc_detection_response import LincDetectionResponse, BoundingBoxCoords
+from domain.linc_detection_response import LincDetectionResponse
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -30,8 +30,7 @@ def detect_v1(image: PILImage, ctx: bentoml.Context) -> LincDetectionResponse:
 
     vert_size = int(ctx.request.query_params.get('vert_size', 500))
     bounding_box_coords = process_uploaded_file(image, vert_size, ctx)
-    bounding_box_coords_instance = BoundingBoxCoords(**{'bounding_boxes': bounding_box_coords})
-    return LincDetectionResponse(bounding_box_coords=bounding_box_coords_instance)
+    return LincDetectionResponse(bounding_box_coords=bounding_box_coords)
 
     # except Exception:
     #     ctx.response.status_code = 500

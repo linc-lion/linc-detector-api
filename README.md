@@ -34,3 +34,10 @@ bentoml build
 bentoml serve linc_detection:svc --reload
 ```
 This will start the BentoML service, and you can access the API at http://0.0.0.0:3000/v1/annotate. `vert_size` is optional query parameter which is defaulted to 500 when it's not provided. Make sure to check the documentation or code for any additional configuration options or API endpoints.
+curl request:
+```
+curl --location --request POST 'http://127.0.0.1:5000/v1/annotate?vert_size=250' \
+--header 'Authorization: Bearer 1e620008-745c-4e84-be74-81042ab71b1e' \
+--form 'file=@"{FILE_PATH_TO_IMAGE}"'
+```
+
