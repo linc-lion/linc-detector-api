@@ -135,8 +135,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#Node dependencies
+# Node dependencies
 node_modules/
 
 .idea/
 .DS_Store
+
+# Project
+artifacts/
