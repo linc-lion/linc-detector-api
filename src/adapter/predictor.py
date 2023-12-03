@@ -73,5 +73,4 @@ def predict(model, checkpoint, image_path, vert_size):
         box_coordinates = fetch_boxes_coordinates(tensor_image, top_boxes, top_labels, label_names)
         return {"image_with_boxes": image_with_boxes, "box_coordinates": box_coordinates}
     else:
-        logger.info("No objects detected with confidence above the threshold.")
-        return False
+        return {"error": "No objects detected with confidence above the threshold."}
