@@ -46,17 +46,15 @@ def build_model(checkpoint):
     return loaded_model
 
 
-def predict(image_path, vert_size):
+def predict(model, checkpoint, image_path, vert_size):
     image = PIL.Image.open(image_path)
 
     tensor_image = to_tensor(image).to(device)
 
-    checkpoint = load_checkpoint()
     label_names = checkpoint['label_names']
 
     logger.info('Running image through model...')
     tic = time.time()
-    model = build_model(checkpoint)
     outputs = model([tensor_image])
     toc = time.time()
     logger.info(f'Done in {toc - tic:.2f} seconds!')

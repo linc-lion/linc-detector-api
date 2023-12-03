@@ -12,8 +12,15 @@ class LincDetectionRunnable(bentoml.Runnable):
     SUPPORTS_CPU_MULTI_THREADING = True
 
     def __init__(self):
-        pass
+        self.model, self.checkpoint = self._init_model_and_checkpoint()
+
+    @staticmethod
+    def _init_model_and_checkpoint():
+        # Load the model and checkpoint during initialization
+        checkpoint = predictor.load_checkpoint()
+        model = predictor.build_model(checkpoint)
+        return model, checkpoint
 
     @bentoml.Runnable.method(batchable=False)
     def inference(self, image_path, vert_size):
-        return predictor.predict(image_path, vert_size)
+        return predictor.predict(self.model, self.checkpoint, image_path, vert_size)
