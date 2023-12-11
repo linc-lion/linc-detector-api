@@ -1,8 +1,8 @@
-import unittest
+from unittest import TestCase
 from domain.linc_detection_response import LincDetectionResponse
 
 
-class TestLincDetectionResponse(unittest.TestCase):
+class TestLincDetectionResponse(TestCase):
     def test_successful_response(self):
         # Create a successful response instance
         bounding_box_coords = {"sample": [0, 0, 100, 100]}
