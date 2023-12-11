@@ -1,10 +1,5 @@
-# predictor.py
-
-import os
 import time
-import PIL
-import boto3
-from linc.detector.helper.utils import draw_boxes, fetch_boxes_coordinates
+from linc.detector.helper.utils import fetch_boxes_coordinates
 from linc.detector.models import detection
 import torch
 import torchvision
@@ -22,17 +17,8 @@ logger = LoggerFactory.create_logger(service_name='linc-detector-api', logger_na
 
 
 def load_checkpoint():
-    if not os.path.exists(model_filename):
-        download_model()
     model_checkpoint = torch.load(model_filename, map_location=device)
     return model_checkpoint
-
-
-def download_model():
-    session = boto3.Session()
-    s3 = session.resource('s3')
-    bucket = s3.Bucket(BUCKET_NAME)
-    bucket.download_file(KEY, 'model.pth')
 
 
 def build_model(checkpoint):
@@ -46,8 +32,7 @@ def build_model(checkpoint):
     return loaded_model
 
 
-def predict(model, checkpoint, image_path):
-    image = PIL.Image.open(image_path)
+def predict(model, checkpoint, image):
 
     tensor_image = to_tensor(image).to(device)
 
