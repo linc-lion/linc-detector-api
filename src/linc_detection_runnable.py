@@ -22,5 +22,5 @@ class LincDetectionRunnable(bentoml.Runnable):
         return model, checkpoint
 
     @bentoml.Runnable.method(batchable=False)
-    def inference(self, image_path, vert_size):
-        return predictor.predict(self.model, self.checkpoint, image_path, vert_size)
+    def inference(self, image_path):
+        return predictor.predict(self.model, self.checkpoint, image_path)

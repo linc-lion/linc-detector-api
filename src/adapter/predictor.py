@@ -46,7 +46,7 @@ def build_model(checkpoint):
     return loaded_model
 
 
-def predict(model, checkpoint, image_path, vert_size):
+def predict(model, checkpoint, image_path):
     image = PIL.Image.open(image_path)
 
     tensor_image = to_tensor(image).to(device)
@@ -67,10 +67,7 @@ def predict(model, checkpoint, image_path, vert_size):
 
     if len(top_scores) > 0:
         logger.info(f'Number of detected objects: {len(top_scores)}')
-        image_with_boxes = draw_boxes(
-            tensor_image.cpu(), top_boxes, top_labels.cpu(), label_names, scores, vert_size=vert_size
-        )
         box_coordinates = fetch_boxes_coordinates(tensor_image, top_boxes, top_labels, label_names)
-        return {"image_with_boxes": image_with_boxes, "box_coordinates": box_coordinates}
+        return {"box_coordinates": box_coordinates}
     else:
         return {"error": "No objects detected with confidence above the threshold."}

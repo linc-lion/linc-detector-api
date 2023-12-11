@@ -33,7 +33,7 @@ bentoml build
 ```bash
 bentoml serve linc_detection:svc --reload
 ```
-This will start the BentoML service, and you can access the API at http://0.0.0.0:3000/v1/annotate. `vert_size` is optional query parameter which is defaulted to 500 when it's not provided. Make sure to check the documentation or code for any additional configuration options or API endpoints.
+This will start the BentoML service, and you can access the API at http://0.0.0.0:3000/v1/annotate. Make sure to check the documentation or code for any additional configuration options or API endpoints.
 curl request:
 ```
 curl --location --request POST 'http://127.0.0.1:5000/v1/annotate?vert_size=250' \

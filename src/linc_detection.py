@@ -18,8 +18,7 @@ def detect_v1(image: PILImage, ctx: bentoml.Context) -> LincDetectionResponse:
 
         clear_old_files()
 
-        vert_size = int(ctx.request.query_params.get('vert_size', 500))
-        bounding_box_coords = process_uploaded_file(image, vert_size, ctx)
+        bounding_box_coords = process_uploaded_file(image, ctx)
         return LincDetectionResponse(bounding_box_coords=bounding_box_coords)
 
     except Exception:
@@ -34,12 +33,12 @@ def clear_old_files():
         os.remove(f)
 
 
-def process_uploaded_file(file, vert_size, ctx):
+def process_uploaded_file(file, ctx):
 
     file.save("input_image_path", 'png')
 
     # Call predict method to get predictions
-    prediction_result = linc_detector_runner.inference.run("input_image_path", vert_size)
+    prediction_result = linc_detector_runner.inference.run("input_image_path")
 
     # Assuming prediction_result is a dictionary containing the bounding box coordinates
     bounding_box_coords = prediction_result.get("box_coordinates", None)
