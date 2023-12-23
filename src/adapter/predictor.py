@@ -10,14 +10,16 @@ draw_confidence_threshold = 0.5
 to_tensor = torchvision.transforms.ToTensor()
 device = 'cpu'
 BUCKET_NAME = 'linc-model-artifact'
-KEY = 'linc-detector/20221002/model.pth'
-model_filename = 'model.pth'
 
 logger = LoggerFactory.create_logger(service_name='linc-detector-api', logger_name=__name__)
 
 
-def load_checkpoint():
-    model_checkpoint = torch.load(model_filename, map_location=device)
+def load_checkpoint(model_name, model_version):
+    model_filename = f'../artifacts/{model_name}/{model_version}/model.pth'
+    model_checkpoint = torch.load(
+        model_filename,
+        map_location=device
+    )
     return model_checkpoint
 
 

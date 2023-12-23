@@ -15,9 +15,9 @@ JSON=$(cat "$JSON_FILE")
 MODEL_NAME=$(echo "$JSON" | jq -r '.name')
 MODEL_VERSION=$(echo "$JSON" | jq -r '.version')
 
-MODEL_PATH="s3://linc-model-artifact/"$MODEL_NAME/$MODEL_VERSION"/model.pth"
+MODEL_PATH="s3://linc-model-artifact/$MODEL_NAME/$MODEL_VERSION/model.pth"
 
-LOCAL_DIR="artifacts/$MODEL_NAME/$VERSION"
+LOCAL_DIR="artifacts/$MODEL_NAME/$MODEL_VERSION/"
 echo "Downloading artifact from $MODEL_PATH to $LOCAL_DIR"
 
 aws s3 cp $MODEL_PATH "$LOCAL_DIR"
