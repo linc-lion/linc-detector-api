@@ -9,11 +9,11 @@ svc = bentoml.Service("linc_detection", runners=[linc_detector_runner])
 
 
 @svc.api(input=Image(), output=JSON(), route='/v1/annotate')
-def predict(image: PILImage, ctx: bentoml.Context) -> LincDetectionResponse:
+async def predict(image: PILImage, ctx: bentoml.Context) -> LincDetectionResponse:
     try:
 
         # Call predict method to get predictions
-        prediction_result = linc_detector_runner.inference.run(image)
+        prediction_result = await linc_detector_runner.inference.async_run(image)
 
         # Assuming prediction_result is a dictionary containing the bounding box coordinates
         bounding_box_coords = prediction_result.get("box_coordinates", None)
