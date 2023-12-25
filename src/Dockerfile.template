@@ -1,0 +1,13 @@
+{% extends bento_base_template %}
+{% block SETUP_BENTO_BASE_IMAGE %}
+ARG BEARER_TOKEN
+{{ super() }}
+
+ARG BEARER_TOKEN
+
+ENV BEARER_TOKEN=$BEARER_TOKEN
+{% endblock %}
+{% block SETUP_BENTO_COMPONENTS %}
+{{ super() }}
+
+{% endblock %}
