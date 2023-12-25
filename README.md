@@ -1,8 +1,8 @@
-# Linc Detection Service
+# Lion Detection Service
 
 ## Overview
 
-This BentoML service utilizes the Linc Detection model for image annotation. It exposes an API endpoint for annotating images with bounding box coordinates.
+This BentoML service utilizes the lion detection model for image annotation. It exposes an API endpoint for annotating images with bounding box coordinates.
 
 ## Installation
 1) Install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#regular-installation).
