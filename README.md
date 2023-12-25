@@ -23,12 +23,15 @@ This BentoML service utilizes the lion detection model for image annotation. It 
      > ./fetch-artifacts.sh
      ```
 2) From command line:
-   - ```
-     > cd src
-     > bentoml serve linc_detection:svc --reload
+   - ```commandline
+     export BEARER_TOKEN=insert_bearer_token_of_your_choice
+     ```
+   - ```commandline
+     cd src
+     bentoml serve linc_detection:svc --reload
      ```
    - Alternatively, you can start up a production server:
-     ```
+     ```commandline
      bentoml serve linc_detection:svc --production
      ```
 
