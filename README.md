@@ -28,7 +28,7 @@ This BentoML service utilizes the lion detection model for image annotation. It 
      ```
    - ```commandline
      cd src
-     bentoml serve linc_detection:svc --reload
+     bentoml serve linc_detection:svc --api-workers=1 --reload
      ```
    - Alternatively, you can start up a production server:
      ```commandline
