@@ -9,7 +9,6 @@ draw_confidence_threshold = 0.5
 
 to_tensor = torchvision.transforms.ToTensor()
 device = 'cpu'
-BUCKET_NAME = 'linc-model-artifact'
 
 logger = LoggerFactory.create_logger(service_name='linc-detector-api', logger_name=__name__)
 
