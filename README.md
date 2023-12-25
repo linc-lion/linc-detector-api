@@ -1,83 +1,47 @@
-### Linc Detector Webapp
+# Linc Detection Service
 
-### Requirements
-- Python v3.8+
+## Overview
 
-### Install
-To install, clone this repo and cd into the root of the project.
+This BentoML service utilizes the Linc Detection model for image annotation. It exposes an API endpoint for annotating images with bounding box coordinates.
 
-1) Create a virtual environment:
+## Installation
+1) Install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#regular-installation).
+2) Execute the following on a terminal:
+   - ```
+      > conda create --name <insert_name> python=3.9 --y
+      > conda activate <insert_name>  # instruction for Mac. See conda cheatsheet below for other OS.
+      > pip install -r requirements.txt
+     ``` 
+ 
+3) Conda [cheatsheet](https://docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf).
+4) Recommended IDE is [Pycharm](https://www.jetbrains.com/pycharm/download/).
+   * Right mouse click on `src` to mark directory as source root.
 
-```conda create --name linc-detector-api python=3.8```
+## Run the service
+1) Before running the service, we need to download the artifacts from s3:
+   - ```
+     > ./fetch-artifacts.sh
+     ```
+2) From command line:
+   - ```
+     > cd src
+     > bentoml serve linc_detection:svc --reload
+     ```
+   - Alternatively, you can start up a production server:
+     ```
+     bentoml serve linc_detection:svc --production
+     ```
 
-2) Activate the virtual environment. If you're using a Unix-based OS, run:
+## Usage
+1) Swagger url: http://localhost:3000
 
-```conda activate linc-detector-api```
+2) Example curl request:
+    ```bash
+    curl --location 'http://localhost:3000/v1/annotate' \
+    --header 'Authorization: Bearer 1e620008-745c-4e84-be74-81042ab71b1e' \
+    --form 'file=@"path/to/lion_image.jpg"'
+   ```
 
-3) Install the needed python dependencies:
-
-```pip install -r requirements.txt```
-
-### Running Locally
-
-1. Configure Environment Variables
-
-    Add a .env file in the root directory of the project add AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY as show below will
-
-    ```buildoutcfg
-    AWS_ACCESS_KEY_ID = "KEY_ID"
-    AWS_SECRET_ACCESS_KEY = "ACCESS_KEY"
-    ```
-
-2. Execute ```flask --app application run``` at the root of the project
-
-You should be able to view the REST endpoint at 127.0.0.1:5000/v1/annotate
-
-### Using POSTMAN
-
-To make a request using POSTMAN:
-
-```
-curl --location --request POST 'http://127.0.0.1:5000/v1/annotate?vert_size=250' \
---header 'Authorization: Bearer 1e620008-745c-4e84-be74-81042ab71b1e' \
---form 'file=@"{FILE_PATH_TO_IMAGE}"'
-```
-
-Replace YOUR_API_KEY with your actual API key and provide the path to the image file in {FILE_PATH_TO_IMAGE}.
-
-The vert_size is configured as a query parameter, and the default value is 500.
-
-note: file path needs the picture name and file extension ie: `/Users/habibamohamed/Downloads/habiba/evaluation/Amboga/PJB_2359.JPG`
-
-This endpoint allows you to perform object detection on an image by uploading it to the server. The API will return an image with bounding boxes drawn around detected objects and the coordinates of these bounding boxes.
-
-### Endpoint: `/v1/annotate`
-
-This endpoint allows you to perform object detection on an image by uploading it to the server. The API will return an image with bounding boxes drawn around detected objects and the coordinates of these bounding boxes.
-
-- HTTP Method: POST
-- Content Type: `multipart/form-data`
-
-**Form Data Parameters:**
-- `file`: The image file to be uploaded for object detection.
-
-**Query Parameter:**
-- `vert_size` (optional): The vertical size for drawing bounding boxes. Default value is 500.
-
-### Output
-
-The API will return a JSON object with the following fields:
-
-- `input_image`: The path to the uploaded input image.
-- `bounding_box_coords`: A list of dictionaries containing the coordinates of the bounding boxes.
-
-
-### Running Tests
-
-To run the integration tests for the API, follow these steps:
-
-1. Ensure you have dependencies installed before running tests
-2. Run the tests using the command `python test_app.py`.
-
-The tests cover various scenarios, including successful image annotation and cases where exceptions are thrown due to missing or invalid data.
-
+## Resources
+* [BentoML](https://docs.bentoml.org/en/latest/index.html)
+* [Pytest](https://docs.pytest.org/en/stable/contents.html)
