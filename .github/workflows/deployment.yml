@@ -9,14 +9,12 @@ on:
         required: true
 
 env:
-  AWS_REGION: us-east-1                   # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: linc-detector-api-repository           # set this to your Amazon ECR repository name
-  ECS_SERVICE: linc-detector-api-service                 # set this to your Amazon ECS service name
-  ECS_CLUSTER: linc-cluster                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: .aws/task-defintion.json # set this to the path to your Amazon ECS task definition
-                                               # file, e.g. .aws/task-definition.json
-  CONTAINER_NAME: linc-detector-api-container           # set this to the name of the container in the
-                                               # containerDefinitions section of your task definition
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: linc-detector-api-repository
+  ECS_SERVICE: linc-detector-api-service
+  ECS_CLUSTER: linc-cluster
+  ECS_TASK_DEFINITION: .aws/task-defintion.json
+  CONTAINER_NAME: linc-detector-api-container
 
 permissions:
   contents: read
@@ -39,10 +37,10 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        role-to-assume: arn:aws:iam::134918431080:user/linc-detector-api
-        role-skip-session-tagging: true
-        role-duration-seconds: 3600
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
