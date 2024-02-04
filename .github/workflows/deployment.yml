@@ -71,7 +71,7 @@ jobs:
 
     - name: Login to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+      uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
 
     - name: Set up Python environment
       uses: actions/setup-python@v5
@@ -93,7 +93,7 @@ jobs:
         # be deployed to ECS.
         cd src
         bentoml build -f bentofile.yaml
-        bentoml containerize linc_detection:latest -t $IMAGE_TAG
+        bentoml containerize linc_detection:latest -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
