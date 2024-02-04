@@ -73,8 +73,8 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Install BentoML
-      run: pip install bentoml
+    - name: Install BentoML and dependencies
+      run: pip install -r requirements.txt
 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
