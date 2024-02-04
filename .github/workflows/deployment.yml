@@ -40,12 +40,13 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        role-to-assume: arn:aws:iam::134918431080:user/linc-detector-api
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Login to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
+      uses: aws-actions/amazon-ecr-login@v1
 
     - name: Set up Python environment
       uses: actions/setup-python@v5
