@@ -29,10 +29,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Execute fetch-artifacts.sh script
-      shell: bash
-      run: ./fetch-artifacts.sh
-
     - name: Calculate short SHA
       id: short-sha
       run: echo "::set-output name=docker_image::$(git rev-parse --short HEAD)"
@@ -44,6 +40,10 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+
+    - name: Execute fetch-artifacts.sh script
+      shell: bash
+      run: ./fetch-artifacts.sh
 
     - name: Login to Amazon ECR
       id: login-ecr
