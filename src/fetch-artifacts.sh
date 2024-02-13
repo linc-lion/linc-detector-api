@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JSON_FILE="src/artifact/artifacts.json"
+JSON_FILE="artifact/artifacts.json"
 
 # Check if the JSON file doesn't exist
 if [ ! -f "$JSON_FILE" ]; then
