@@ -46,7 +46,7 @@ jobs:
       run: cd src && ./fetch-artifacts.sh
 
     - name: Check contents of directory
-      run: ls -la
+      run: ls -la artifacts/linc-detector/20221002/
 
 #    - name: Login to Amazon ECR
 #      id: login-ecr
