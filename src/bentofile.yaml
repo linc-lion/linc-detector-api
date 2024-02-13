@@ -2,7 +2,6 @@ service: "linc_detection:svc"
 include:
     - "**/*.py"
     - "**/*.json"
-    - "*.sh"
 python:
   requirements_txt: "../requirements.txt"
 docker:
