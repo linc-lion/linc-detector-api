@@ -16,7 +16,7 @@ class LincDetectionRunnable(bentoml.Runnable):
     @staticmethod
     def _init_model_and_checkpoint():
         # Load the model and checkpoint during initialization
-        with open('artifact/artifacts.json', 'r') as file:
+        with open('config/artifacts.json', 'r') as file:
             data = json.load(file)
         checkpoint = predictor.load_checkpoint(data['name'], data['version'])
         model = predictor.build_model(checkpoint)

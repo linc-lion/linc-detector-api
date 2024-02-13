@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JSON_FILE="artifact/artifacts.json"
+JSON_FILE="src/config/artifacts.json"
 
 # Check if the JSON file doesn't exist
 if [ ! -f "$JSON_FILE" ]; then
@@ -17,7 +17,7 @@ MODEL_VERSION=$(echo "$JSON" | jq -r '.version')
 
 MODEL_PATH="s3://linc-model-artifact/$MODEL_NAME/$MODEL_VERSION/model.pth"
 
-LOCAL_DIR="artifacts/$MODEL_NAME/$MODEL_VERSION/"
+LOCAL_DIR="src/artifacts/$MODEL_NAME/$MODEL_VERSION/"
 echo "Downloading artifact from $MODEL_PATH to $LOCAL_DIR"
 
 aws s3 cp $MODEL_PATH "$LOCAL_DIR"

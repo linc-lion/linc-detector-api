@@ -14,7 +14,7 @@ logger = LoggerFactory.create_logger(service_name='linc-detector-api', logger_na
 
 
 def load_checkpoint(model_name, model_version):
-    model_filename = f'../artifacts/{model_name}/{model_version}/model.pth'
+    model_filename = f'artifacts/{model_name}/{model_version}/model.pth'
     model_checkpoint = torch.load(
         model_filename,
         map_location=device

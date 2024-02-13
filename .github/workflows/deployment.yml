@@ -43,7 +43,7 @@ jobs:
 
     - name: Execute fetch-artifacts.sh script
       shell: bash
-      run: cd src && ./fetch-artifacts.sh
+      run: ./fetch-artifacts.sh
 
     - name: Check contents of directory
       run: ls -la src/artifacts/linc-detector/20221002/
