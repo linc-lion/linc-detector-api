@@ -31,9 +31,7 @@ jobs:
 
     - name: Execute fetch-artifacts.sh script
       shell: bash
-      run: |
-        chmod +x fetch-artifacts.sh
-        ./fetch-artifacts.sh
+      run: ./fetch-artifacts.sh
 
     - name: Calculate short SHA
       id: short-sha
