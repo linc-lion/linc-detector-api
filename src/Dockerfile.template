@@ -8,6 +8,14 @@ ARG BEARER_TOKEN
 ENV BEARER_TOKEN=$BEARER_TOKEN
 {% endblock %}
 {% block SETUP_BENTO_COMPONENTS %}
+# Copy fetch-artifacts.sh script to the container
+COPY fetch-artifacts.sh /fetch-artifacts.sh
+
+# Make fetch-artifacts.sh executable
+RUN chmod +x /fetch-artifacts.sh
+
+# Run fetch-artifacts.sh to download the model from S3
+RUN /fetch-artifacts.sh
 {{ super() }}
 
 {% endblock %}
