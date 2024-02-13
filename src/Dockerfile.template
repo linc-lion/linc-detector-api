@@ -6,10 +6,17 @@ ARG BEARER_TOKEN
 ARG BEARER_TOKEN
 
 ENV BEARER_TOKEN=$BEARER_TOKEN
+
+# Print the contents of the directory
+RUN ls -la /
+
 {% endblock %}
 {% block SETUP_BENTO_COMPONENTS %}
 # Copy fetch-artifacts.sh script to the container
 COPY ../fetch-artifacts.sh /fetch-artifacts.sh
+
+# Print the contents of the directory
+RUN ls -la /
 
 # Make fetch-artifacts.sh executable
 RUN chmod +x /fetch-artifacts.sh
