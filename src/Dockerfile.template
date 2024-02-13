@@ -12,9 +12,6 @@ ENV BEARER_TOKEN=$BEARER_TOKEN
 # Copy fetch-artifacts.sh script to the container
 COPY fetch-artifacts.sh /fetch-artifacts.sh
 
-# Print the contents of the directory
-RUN ls -la /
-
 # Make fetch-artifacts.sh executable
 RUN chmod +x /fetch-artifacts.sh
 
