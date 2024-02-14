@@ -66,14 +66,13 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ steps.short-sha.outputs.docker_image }}
-        BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
       run: |
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
         cd src
         bentoml build -f bentofile.yaml
-        bentoml containerize linc_detection:latest -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        bentoml containerize linc_detection:latest --build-arg BEARER_TOKEN=${{ secrets.BEARER_TOKEN }} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
