@@ -23,7 +23,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{github.event.inputs.environment}}
 
     steps:
     - name: Checkout
@@ -37,9 +37,9 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+        aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+        aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+        aws-region: ${{env.AWS_REGION}}
 
     - name: Execute fetch-artifacts.sh script
       shell: bash
@@ -64,8 +64,8 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ steps.short-sha.outputs.docker_image }}
+        ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
+        IMAGE_TAG: ${{steps.short-sha.outputs.docker_image}}
       run: |
         # Build a docker container and
         # push it to ECR so that it can
@@ -81,14 +81,14 @@ jobs:
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
-        task-definition: ${{ env.ECS_TASK_DEFINITION }}
-        container-name: ${{ env.CONTAINER_NAME }}
-        image: ${{ steps.build-image.outputs.image }}
+        task-definition: ${{env.ECS_TASK_DEFINITION}}
+        container-name: ${{env.CONTAINER_NAME}}
+        image: ${{steps.build-image.outputs.image}}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: ${{ env.ECS_SERVICE }}
-        cluster: ${{ env.ECS_CLUSTER }}
+        task-definition: ${{steps.task-def.outputs.task-definition}}
+        service: ${{env.ECS_SERVICE}}
+        cluster: ${{env.ECS_CLUSTER}}
         wait-for-service-stability: true
