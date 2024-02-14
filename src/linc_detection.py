@@ -14,14 +14,11 @@ svc = bentoml.Service("linc_detection", runners=[linc_detector_runner])
 
 bearer_token = os.environ.get('BEARER_TOKEN')
 
-logger.info(f"bearer_token: {bearer_token}")
-
 
 def authenticate_bearer_token(request):
     auth_header = request.headers.get('Authorization')
     if auth_header:
         token_type, _, token = auth_header.partition(' ')
-        logger.info(f"token: {token}")
         if token_type.lower() == 'bearer':
             if bearer_token and token == bearer_token:
                 return True
