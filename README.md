@@ -45,6 +45,10 @@ This BentoML service utilizes the lion detection model for image annotation. It 
     --form 'file=@"path/to/lion_image.jpg"'
    ```
 
+## Buildx github actions requirement
+Buildx is required by github actions to build arm64 images on github actions default runners
+[Link](https://stackoverflow.com/questions/70312490/github-actions-runner-environment-doesnt-build-for-arm-images/70312558#70312558)
+
 ## Resources
 * [BentoML](https://docs.bentoml.org/en/latest/index.html)
 * [Pytest](https://docs.pytest.org/en/stable/contents.html)
