@@ -44,9 +44,6 @@ jobs:
     - name: Execute fetch-artifacts.sh script
       shell: bash
       run: ./fetch-artifacts.sh
-
-    - name: Check contents of directory
-      run: ls -la src/artifacts/linc-detector/20221002/
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -87,7 +84,7 @@ jobs:
 
     - name: Update executionRoleArn in task-definition.json
       run: |
-        jq '.executionRoleArn = env.EXECUTION_ROLE_ARN' ${{env.ECS_TASK_DEFINITION}} | sponge ${{env.ECS_TASK_DEFINITION}}
+        jq '.executionRoleArn = env.EXECUTION_ROLE_ARN' ${{secrets.EXECUTION_ROLE_ARN}} | sponge ${{secrets.EXECUTION_ROLE_ARN}}
       env:
         EXECUTION_ROLE_ARN: ${{secrets.EXECUTION_ROLE_ARN}}
 
