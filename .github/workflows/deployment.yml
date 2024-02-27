@@ -84,7 +84,7 @@ jobs:
 
     - name: Update executionRoleArn in task-definition.json
       run: |
-        jq '.executionRoleArn = env.EXECUTION_ROLE_ARN' ${{secrets.EXECUTION_ROLE_ARN}} | sponge ${{secrets.EXECUTION_ROLE_ARN}}
+        jq '.executionRoleArn = env.EXECUTION_ROLE_ARN' ${{env.ECS_TASK_DEFINITION}} | sponge ${{env.ECS_TASK_DEFINITION}}
       env:
         EXECUTION_ROLE_ARN: ${{secrets.EXECUTION_ROLE_ARN}}
 
