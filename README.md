@@ -45,6 +45,14 @@ This BentoML service utilizes the lion detection model for image annotation. It 
     --form 'file=@"path/to/lion_image.jpg"'
    ```
 
+## Deployment
+
+The GHA workflow (deployment.yml) automates the deployment of the Linc Detector service to Amazon ECS Fargate.
+By utilizing this workflow, we seamlessly deploy the service by specifying the target environment.
+The inputs required for deployment include the environment configuration. The workflow handles building 
+the Docker image, pushing it to Amazon ECR, updating the ECS task definition, and deploying the updated 
+task definition to ECS, ensuring smooth and efficient service deployment.
+
 ## Buildx github actions requirement
 Buildx is required by github actions to build arm64 images on github actions default runners
 [Link](https://stackoverflow.com/questions/70312490/github-actions-runner-environment-doesnt-build-for-arm-images/70312558#70312558)
