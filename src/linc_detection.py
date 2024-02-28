@@ -5,6 +5,9 @@ import bentoml
 from bentoml.io import JSON, Image
 from linc_detection_runnable import LincDetectionRunnable
 from domain.linc_detection_response import LincDetectionResponse
+from utils.logger_factory import LoggerFactory
+
+logger = LoggerFactory.create_logger(service_name='linc-detector-api', logger_name=__name__)
 
 linc_detector_runner = bentoml.Runner(LincDetectionRunnable)
 svc = bentoml.Service("linc_detection", runners=[linc_detector_runner])
