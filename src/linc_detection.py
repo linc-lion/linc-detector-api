@@ -1,6 +1,5 @@
 import os
 
-from PIL import Image as PILImage
 import bentoml
 from bentoml.io import JSON, Image
 from linc_detection_runnable import LincDetectionRunnable
@@ -26,7 +25,7 @@ def authenticate_bearer_token(request):
 
 
 @svc.api(input=Image(), output=JSON(), route='/v1/annotate')
-async def predict(image: PILImage, ctx: bentoml.Context) -> LincDetectionResponse:
+async def predict(image: Image, ctx: bentoml.Context) -> LincDetectionResponse:
     try:
 
         is_authenticated = authenticate_bearer_token(ctx.request)
