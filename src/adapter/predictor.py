@@ -58,15 +58,15 @@ class Predictor:
         top_boxes = outputs[0]['boxes'][top_scores_filter]
         top_labels = outputs[0]['labels'][top_scores_filter]
 
+        logger.info(f'Number of detected objects: {len(top_scores)}')
         if len(top_scores) > 0:
-            logger.info(f'Number of detected objects: {len(top_scores)}')
             box_coordinates = fetch_boxes_coordinates(tensor_image, top_boxes, top_labels, label_names)
             return {
-                "message": f"Number of successfullydetected objects: {len(top_scores)}",
+                "message": f"Number of successfully detected objects: {len(top_scores)}",
                 "box_coordinates": box_coordinates
             }
         else:
             return {
                 "message": "No objects detected with confidence above the threshold.",
-                "box_coordinates": []
+                "box_coordinates": {}
             }
