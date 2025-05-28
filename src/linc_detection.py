@@ -31,18 +31,21 @@ async def predict(image: Image, ctx: bentoml.Context) -> LincDetectionResponse:
         is_authenticated = authenticate_bearer_token(ctx.request)
         if not is_authenticated:
             ctx.response.status_code = 401
-            return LincDetectionResponse(bounding_box_coords=None, error_message="Unauthorized")
+            return LincDetectionResponse(bounding_box_coords={}, error_message="Unauthorized")
 
         # Call predict method to get predictions
         prediction_result = await linc_detector_runner.inference.async_run(image)
 
         # Assuming prediction_result is a dictionary containing the bounding box coordinates
-        bounding_box_coords = prediction_result.get("box_coordinates", None)
+        bounding_box_coords = prediction_result["box_coordinates"]
+        message = prediction_result["message"]
 
-        return LincDetectionResponse(bounding_box_coords=bounding_box_coords)
-
-    except Exception:
-
+        return LincDetectionResponse(
+            bounding_box_coords=bounding_box_coords,
+            message=message
+        )
+    except Exception as e:
+        logger.error(f"Error during prediction: {str(e)}")
         ctx.response.status_code = 500
-        # Return LincDetectionResponse with an error message in the error case
-        return LincDetectionResponse(bounding_box_coords=None, error_message="No lion detected in image")
+        # Return LincDetectionResponse with the actual error message
+        return LincDetectionResponse(bounding_box_coords={}, error_message=f"Error during prediction: {str(e)}")
